@@ -41,19 +41,15 @@ class Run:
                 self.plaintext = str(input('Enter the message(in Text-form)\n>>'))
                 self.cipher = self.key.encrypt(self.plaintext, self.key_text)
                 print('the cipher is(in hex-decimal form)\n[+] %s' % self.cipher)
-                #print(self.cipher)
                 self.if_continue()
                 continue
 
             elif self.choice.lower() == 'b':
-                print("please wait\n")
-                continue
                 if not self.enter_key():
                     continue
                 self.cipher = str(input('Enter the message(in hex-decimal form)\n>>'))
                 self.plaintext = self.key.decrypt(self.cipher, self.key_text)
-                print('the original text is\n[+]')
-                print(self.plaintext)
+                print('the original text is\n[+] %s' % self.plaintext)
                 self.if_continue()
                 continue
 

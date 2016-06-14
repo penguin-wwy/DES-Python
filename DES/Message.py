@@ -153,8 +153,8 @@ class Massage:
 
         tmp.clear()
         for i in range(0, 8):
-            raw = 1 * r[i][0] + 2 * r[i][5]
-            col = 1 * r[i][1] + 2 * r[i][2] + 4 * r[i][3] + 8 * r[i][4]
+            raw = 2 * r[i][0] + 1 * r[i][5]
+            col = 8 * r[i][1] + 4 * r[i][2] + 2 * r[i][3] + 1 * r[i][4]
             res = self.S[i][raw * 16 + col - 1]
             res_bin = Tool.to_binary(res)
             tmp.extend(res_bin[4:])
@@ -197,7 +197,7 @@ class Massage:
                 block.append(text_bits[i])
         else:
             for i in range(start, end):
-                block.append(self.text_bits)
+                block.append(self.text_bits[i])
 
         block = self.apply_IP(block)
         left_block = block[0:32]

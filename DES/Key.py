@@ -35,7 +35,7 @@ class Key:
 
     def encrypt(self, plaintext, key_text):
         self.all_key = []
-        self.generate_keys(key_text)
+        self.generate_keys(key_text, 0)
         if not self.all_key:
             print('generate_keys func error!\n')
             exit()
@@ -56,13 +56,38 @@ class Key:
 
 
     def decrypt(self, cipher, key_text):
-        print("wait!")
+        self.all_key = []
+        self.generate_keys(key_text, 0)
+        if not self.all_key:
+            print('generate_keys func error!\n')
+            exit()
 
-    def generate_keys(self, key_text):
+        self.text_bits = []
+        ciphertext = ''
+        for i in cipher:
+            ciphertext += Tool.hex_to_bin(i)
+        for i in ciphertext:
+            self.text_bits.append(int(i))
+
+        self.add_pads_if_necessary()
+        self.all_key.reverse()
+        bin_mess = ''
+        message = Massage(self.text_bits)
+        for i in range(0, len(self.text_bits), 64):
+            bin_mess += message.encrypt(i, i + 64, self.all_key, self.text_bits)
+
+        i = 0
+        text_mess = ''
+        while i < len(bin_mess):
+            text_mess += Tool.bin_to_text(bin_mess[i:i+8])
+            i = i + 8
+
+        return text_mess.rstrip('\x00')
+
+    def generate_keys(self, key_text, flag):
         self.key = []
         for i in key_text:
             self.key.extend(Tool.to_binary(ord(i)))
-
         self.one_grp = []
         self.two_grp = []
         for i in range(28):
@@ -70,20 +95,40 @@ class Key:
         for i in range(28):
             self.two_grp.append(self.key[self.sub_key_2[i]])
 
-        for i in range(0, 16):
-            if i in [0, 1, 8, 15]:
-                self.one_grp = Tool.left_shift(self.one_grp, 1)
-                self.two_grp = Tool.left_shift(self.two_grp, 1)
-            else:
-                self.one_grp = Tool.left_shift(self.one_grp, 2)
-                self.two_grp = Tool.left_shift(self.two_grp, 2)
-            all = []
-            all.extend(self.one_grp)
-            all.extend(self.two_grp)
-            tmp = []
-            for i in range(48):
-                tmp.append(all[self.condense[i]])
-            self.all_key.append(tmp)
+        if flag == 0:
+            for i in range(0, 16):
+                if i in [0, 1, 8, 15]:
+                    self.one_grp = Tool.left_shift(self.one_grp, 1)
+                    self.two_grp = Tool.left_shift(self.two_grp, 1)
+                else:
+                    self.one_grp = Tool.left_shift(self.one_grp, 2)
+                    self.two_grp = Tool.left_shift(self.two_grp, 2)
+                all = []
+                all.extend(self.one_grp)
+                all.extend(self.two_grp)
+                tmp = []
+                for i in range(48):
+                    tmp.append(all[self.condense[i]])
+                self.all_key.append(tmp)
+
+        elif flag != 0:
+            for i in range(0, 16):
+                if i == 0:
+                    pass
+                elif i in [1, 8, 15]:
+                    self.one_grp = Tool.right_shift(self.one_grp, 1)
+                    self.two_grp = Tool.right_shift(self.two_grp, 1)
+                else:
+                    self.one_grp = Tool.right_shift(self.one_grp, 2)
+                    self.two_grp = Tool.right_shift(self.two_grp, 2)
+                all = []
+                all.extend(self.two_grp)
+                all.extend(self.one_grp)
+                tmp = []
+                for i in range(48):
+                    tmp.append(all[self.condense[i]])
+                self.all_key.append(tmp)
+
 
     def get_bits(self, plaintext):
         self.text_bits = []
